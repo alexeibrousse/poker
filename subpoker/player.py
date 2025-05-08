@@ -32,7 +32,6 @@ class Player:
             return f"{self.name} has folded."
         return f"{self.name} is still in the game."
     
-    
     def check(self, current_bet: int):
         if self.bet < current_bet:
             raise ValueError(f"{self.name} cannot check — must call or fold.")

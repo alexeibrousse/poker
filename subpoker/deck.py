@@ -35,7 +35,8 @@ class Deck:
         self.cards = []
         for suit in Card.suits:
             for rank in Card.ranks:
-                self.cards.append(Card(rank, suit))    
+                self.cards.append(Card(rank, suit))
+        return self
 
     def deal(self, num: int):
         if num > len(self.cards):
