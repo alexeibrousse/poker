@@ -1,5 +1,4 @@
 from .table import Table
-from .player import Player
 
 class Game:
     def __init__(self, players: list, small_blind: int):

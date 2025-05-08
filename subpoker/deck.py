@@ -58,11 +58,6 @@ class Deck:
         if not isinstance(other, Deck):
             return False
         return sorted(self.cards) == sorted(other.cards)
-    
-    def add(self, cards):
-        for card in cards:
-            if card not in self.cards:
-                self.cards.append(card)
 
     def remove(self, cards):
         for card in cards:
