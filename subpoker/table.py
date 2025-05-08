@@ -11,7 +11,6 @@ class Table():
     def reset(self):
         self.deck.reset().shuffle()
         self.board = []
-        self.board = []
         self.pot = 0
         for player in self.players:
             player.reset()
@@ -31,3 +30,5 @@ class Table():
                 player.bet = 0
         return self.pot
     
+    def __str__(self):
+        return f"Table with {len(self.players)} players, pot: {self.pot}, board: {self.board}"

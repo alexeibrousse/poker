@@ -7,6 +7,8 @@ class Player:
         self.all_in = False
         self.bet = 0
 
+        self.actions = ["check", "fold", "call", "raise", "all_in"]
+
     @property
     def hand(self):
         return self._hand
@@ -23,37 +25,30 @@ class Player:
     def __repr__(self):
         return f"Player({self.name}, {self.chips})"
     
-    def fold(self):
-        self.folded = True
-        self._hand = []
     
     def has_folded(self):
         if self.folded:
             return f"{self.name} has folded."
         return f"{self.name} is still in the game."
     
+    def fold(self):
+        self.folded = True
+        self._hand = []
+
     def check(self, current_bet: int):
-        if self.bet < current_bet:
-            raise ValueError(f"{self.name} cannot check — must call or fold.")
         return True
 
-    def call(self, amount: int):
-        if amount > self.chips:
-            raise ValueError(f"{self.name} does not have enough chips to call {amount}.")
+    def bet_chips(self, amount: int):
         self.chips -= amount
         self.bet += amount
-        if self.chips == 0:
-            self.all_in = True
 
     def raise_bet(self, amount: int):
-        if amount > self.chips:
-            raise ValueError(f"{self.name} does not have enough chips to call {amount}.")
         self.chips -= amount
         self.bet += amount
         if self.chips == 0:
             self.all_in = True
     
-    def all_in(self):
+    def go_all_in(self):
         self.all_in = True
         self.bet += self.chips
         self.chips = 0
@@ -68,3 +63,40 @@ class Player:
         self.all_in = False
         self.bet = 0
         self._hand = []
+    
+    def add_chips(self, amount: int):
+        self.chips += amount
+
+    def perform_action(self, action: str, current_bet: int = 0, amount: int = 0) -> int:
+        if action not in self.actions:
+            raise ValueError(f"Invalid action: {action}")
+        
+        if action == "check":
+            if self.bet != current_bet:
+                raise ValueError("Cannot check when bet is not equal to current bet.")
+            return 0
+        
+        elif action == "fold":
+            if self.bet == current_bet:
+                raise ValueError("Cannot fold when bet is equal to current bet.")
+            self.fold()
+            return 0
+        
+        elif action == "call":
+            to_call = current_bet - self.bet
+            if to_call < 0:
+                raise ValueError("Current bet is less than player's bet.")
+            self.bet_chips(to_call)
+            return to_call
+        
+        elif action == "raise":
+            raise_amount = amount - self.bet
+            if raise_amount <= 0:
+                raise ValueError("Raise amount must be greater than the current bet.")
+            self.raise_bet(raise_amount)
+            return raise_amount
+        
+        elif action == "all_in":
+            to_all = self.chips
+            self.go_all_in()
+            return to_all
