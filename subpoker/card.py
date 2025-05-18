@@ -6,16 +6,13 @@ class Card:
         self.rank=rank
         self.suit=suit
 
-    def __str__(self):
+    def __str__(self) -> str:
        return f"{self.rank}{self.suit}"
     
-    def __repr__(self):
-        return f"{self.rank}{self.suit}"
-    
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Card):
             return False
         return self.rank == other.rank and self.suit == other.suit
     
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.rank, self.suit))

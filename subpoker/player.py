@@ -6,12 +6,15 @@ class Player:
         self.folded = False
         self.all_in = False
         self.bet = 0
-
         self.actions = ["check", "fold", "call", "raise", "all_in"]
 
     @property
     def hand(self):
         return self._hand
+
+    @property
+    def is_active(self):
+        return not self.folded and not self.all_in
 
     @hand.setter
     def hand(self, cards: list):
@@ -25,7 +28,6 @@ class Player:
     def __repr__(self):
         return f"Player({self.name}, {self.chips})"
     
-    
     def has_folded(self):
         if self.folded:
             return f"{self.name} has folded."
@@ -33,14 +35,17 @@ class Player:
     
     def fold(self):
         self.folded = True
-        self._hand = []
-
-    def check(self, current_bet: int):
-        return True
+        self.all_in = False
+        self.hand = []
 
     def bet_chips(self, amount: int):
+        if amount < 0:
+            raise ValueError("Cannot bet a negative amount.")
+        if amount > self.chips:
+            raise ValueError("Cannot bet more tahn available chips.")
         self.chips -= amount
         self.bet += amount
+
 
     def raise_bet(self, amount: int):
         self.chips -= amount
@@ -50,6 +55,7 @@ class Player:
     
     def go_all_in(self):
         self.all_in = True
+        self.folded = False
         self.bet += self.chips
         self.chips = 0
     
@@ -64,10 +70,7 @@ class Player:
         self.bet = 0
         self._hand = []
     
-    def add_chips(self, amount: int):
-        self.chips += amount
-
-    def perform_action(self, action: str, current_bet: int = 0, amount: int = 0) -> int:
+    def perform_action(self, action: str, current_bet: int = 0, amount: int = 0) -> None | int:
         if action not in self.actions:
             raise ValueError(f"Invalid action: {action}")
         
@@ -77,26 +80,28 @@ class Player:
             return 0
         
         elif action == "fold":
-            if self.bet == current_bet:
-                raise ValueError("Cannot fold when bet is equal to current bet.")
             self.fold()
             return 0
         
         elif action == "call":
-            to_call = current_bet - self.bet
+            to_call = min(current_bet - self.bet, self.chips)
             if to_call < 0:
-                raise ValueError("Current bet is less than player's bet.")
+                raise ValueError("Nothing to call.")
             self.bet_chips(to_call)
+            if self.chips == 0:
+                self.all_in = True
             return to_call
         
         elif action == "raise":
             raise_amount = amount - self.bet
             if raise_amount <= 0:
                 raise ValueError("Raise amount must be greater than the current bet.")
+            if raise_amount > self.chips:
+                raise ValueError("Cannot raise more than available chips.")
             self.raise_bet(raise_amount)
             return raise_amount
         
         elif action == "all_in":
-            to_all = self.chips
+            amount_all_in = self.chips
             self.go_all_in()
-            return to_all
+            return amount_all_in
